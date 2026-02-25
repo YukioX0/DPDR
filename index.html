@@ -1,12 +1,485 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Intelligent Disease Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #6366f1;
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated Blob Background */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: move 20s infinite alternate;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(79, 70, 229, 0.4);
+        }
+
+        .blob-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(236, 72, 153, 0.4);
+            animation-duration: 25s;
+        }
+
+        @keyframes move {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(50px, -50px) scale(1.1);
+            }
+        }
+
+        /* Glassmorphism Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            background: linear-gradient(to right, #818cf8, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* Search / Select Area */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            margin-top: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: var(--text-main);
+            text-transform: capitalize;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary);
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            min-height: 40px;
+        }
+
+        .tag {
+            background: rgba(79, 70, 229, 0.2);
+            border: 1px solid var(--primary);
+            color: #c7d2fe;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: scaleIn 0.3s ease;
+            text-transform: capitalize;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .tag span {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tag span:hover {
+            color: #fff;
+        }
+
+        /* Button */
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, var(--primary), #ec4899);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Result Area */
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-box.active {
+            display: block;
+        }
+
+        .result-box.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .disease-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #34d399;
+            margin-top: 5px;
+            text-transform: capitalize;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Custom Scrollbar for dropdown */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>gsafdgfghfa</h1>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="container">
+        <h1>Disease Predictor</h1>
+        <p class="subtitle">Enter your symptoms to get an AI-powered prediction</p>
+
+        <div class="input-group">
+            <input type="text" id="symptom-input" placeholder="Search for symptoms (e.g., skin rash, head ache)..."
+                autocomplete="off">
+            <div class="dropdown" id="dropdown"></div>
+        </div>
+
+        <div class="tags-container" id="tags"></div>
+
+        <button id="predict-btn" disabled>
+            <span id="btn-text">Predict Disease</span>
+            <div class="spinner" id="spinner"></div>
+        </button>
+
+        <div class="result-box" id="result-box">
+            <div style="color: var(--text-muted); font-size: 0.9rem;">Predicted Condition:</div>
+            <div class="disease-name" id="disease-name"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let allSymptoms = [];
+            let symptomMap = {}; // Maps friendly name to exact dataset string
+            let selectedSymptoms = [];
+
+            const input = document.getElementById("symptom-input");
+            const dropdown = document.getElementById("dropdown");
+            const tagsContainer = document.getElementById("tags");
+            const predictBtn = document.getElementById("predict-btn");
+            const btnText = document.getElementById("btn-text");
+            const spinner = document.getElementById("spinner");
+            const resultBox = document.getElementById("result-box");
+            const diseaseNameEl = document.getElementById("disease-name");
+
+            // Fetch symptoms from API
+            fetch("/symptoms")
+                .then(res => res.json())
+                .then(data => {
+                    data.symptoms.forEach(orig => {
+                        let display = orig.replace(/_/g, ' ').replace(/  /g, ' ').trim();
+                        symptomMap[display] = orig;
+                        allSymptoms.push(display);
+                    });
+                })
+                .catch(err => {
+                    console.error("Error fetching symptoms:", err);
+                    input.placeholder = "Error loading symptoms. Is the backend running?";
+                });
+
+            // Handle input typing
+            input.addEventListener("input", (e) => {
+                const val = e.target.value.toLowerCase().trim();
+                dropdown.innerHTML = "";
+
+                if (!val) {
+                    dropdown.classList.remove("active");
+                    return;
+                }
+
+                const matches = allSymptoms.filter(s =>
+                    s.toLowerCase().includes(val) && !selectedSymptoms.includes(s)
+                ).slice(0, 10); // Limit to 10 suggestions
+
+                if (matches.length > 0) {
+                    dropdown.classList.add("active");
+                    matches.forEach(match => {
+                        const div = document.createElement("div");
+                        div.className = "dropdown-item";
+                        // Highlight matching part
+                        const regex = new RegExp(`(${val})`, 'gi');
+                        div.innerHTML = match.replace(regex, "<span style='color: #a78bfa; font-weight: bold;'>$1</span>");
+
+                        div.addEventListener("click", () => {
+                            addSymptom(match);
+                        });
+                        dropdown.appendChild(div);
+                    });
+                } else {
+                    dropdown.classList.remove("active");
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener("click", (e) => {
+                if (!e.target.closest('.input-group')) {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            function addSymptom(symptom) {
+                if (!selectedSymptoms.includes(symptom)) {
+                    selectedSymptoms.push(symptom);
+                    renderTags();
+                    input.value = "";
+                    dropdown.classList.remove("active");
+                    input.focus();
+                    validateBtn();
+                    resultBox.classList.remove("active"); // Hide previous result
+                }
+            }
+
+            function removeSymptom(symptom) {
+                selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+                renderTags();
+                validateBtn();
+                resultBox.classList.remove("active");
+            }
+
+            function renderTags() {
+                tagsContainer.innerHTML = "";
+                selectedSymptoms.forEach(s => {
+                    const tag = document.createElement("div");
+                    tag.className = "tag";
+                    // Need to replace spaces globally to avoid issues in function calls
+                    const safeStr = s.replace(/'/g, "\\'");
+                    tag.innerHTML = `${s} <span onclick="window.removeSymptomRef('${safeStr}')">&times;</span>`;
+                    tagsContainer.appendChild(tag);
+                });
+            }
+
+            // Expose for inline onclick
+            window.removeSymptomRef = removeSymptom;
+
+            function validateBtn() {
+                predictBtn.disabled = selectedSymptoms.length === 0;
+            }
+
+            // Handle prediction
+            predictBtn.addEventListener("click", async () => {
+                // Map display names back to original dataset strings
+                const payloadArray = selectedSymptoms.map(s => symptomMap[s]);
+
+                btnText.style.display = "none";
+                spinner.style.display = "block";
+                predictBtn.disabled = true;
+                resultBox.classList.remove("active");
+                resultBox.classList.remove("error");
+
+                try {
+                    const res = await fetch("/predict", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ symptoms: payloadArray })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.prediction) {
+                        diseaseNameEl.textContent = data.prediction.replace(/_/g, ' ');
+                        diseaseNameEl.style.color = "#34d399";
+                    } else if (data.error) {
+                        diseaseNameEl.textContent = "Error: " + data.error;
+                        resultBox.classList.add("error");
+                    }
+                } catch (err) {
+                    diseaseNameEl.textContent = "Connection Error";
+                    resultBox.classList.add("error");
+                } finally {
+                    spinner.style.display = "none";
+                    btnText.style.display = "block";
+                    predictBtn.disabled = false;
+                    resultBox.classList.add("active");
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>
